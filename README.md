@@ -35,6 +35,116 @@ multi( select_element, {
 });
 ```
 
+### AJAX options
+
+multi.js can automatically fetch options using AJAX calls and add the fetched items to the option list
+
+```javascript
+multi( select_element, {
+    ajax: {
+        // Fetch the elements from this endpoint
+        endpoint: 'https://yourendpoint.api',
+        // This function if present, will be executed with the data returned
+        // from the endpoint before its inserted into the select.
+        transform: function ( endpoint_data ) {
+            //
+            // If the endpoint_data is an object following this structure:
+            //
+            // {
+            //     status: 'OK',
+            //     data: [
+            //         {
+            //             id: 0,
+            //             full_name: 'string',
+            //             is_enrolled: true,
+            //             location: { ... },
+            //             ...
+            //         },
+            //         ...
+            //     ]
+            // }
+            //
+            // We could transform this object into a SelectOption like
+            //
+            return endpoint_data
+                .data
+                // Filter the options
+                .filter( function ( option ) {
+                    return option.id < 10;
+                } )
+                // Build the SelectOption like object
+                // multi.js will build the options using the returned object
+                .map( function ( option ) {
+                    return {
+                        label: option.full_name,
+                        value: option.id,
+                        selected: option.is_enrolled
+                    };
+                } );
+        },
+        // Decide if the fetched options will be appended to the current option
+        // list or otherwise replace the defined options with the AJAX ones
+        append: true
+    }
+} );
+```
+
+Find a working demonstration on [the examples folder](examples/ajax.html).
+
+#### API
+
+Find below a definition of all the options supported by the AJAX options feature
+
+```typescript
+/**
+ *
+ * @param {AjaxOptions} settings.ajax Options to handle the automatic
+ *      fetch of options.
+ *
+ * @param {string} endpoint Url where the options will be fetched from
+ * @param {TransformFunction} transform Intermediate function that allows
+ *      the user to transform the data returned by the endpoint. This
+ *      function should return an array of objects compatible with the
+ *      SelectOption interface.
+ * @param {boolean} append Wether the options will replace the current
+ *      option set or augment it.
+ *
+ */
+
+interface AjaxOptions {
+    endpoint: string;
+    transform?: TransformFunction;
+    append?: boolean;
+}
+
+
+/**
+ *
+ * @param {any} data Data returned by the endpoint
+ *
+ * @return {SelectOption[]} List of options that should match the
+ *      structure of a SelectOption
+ *
+ */
+
+declare function TransformFunction ( data: any ): SelectOption[]
+
+
+/**
+ *
+ * @param {string} value Value mapped to the value attribute
+ * @param {string} label Value mapped to the innerText property
+ * @param {boolean} selected Wether the option is selected by default or not
+ * @param {boolean} disabled Wether the option is disabled by default or not
+ *
+ */
+interface SelectOption {
+    value?: String;
+    label: String;
+    selected?: boolean;
+    disabled?: boolean;
+}
+```
 
 multi.js is fully native Javascript but also has jQuery support. If you have jQuery included multi can be applied to a select element as follows:
 
@@ -48,7 +158,7 @@ TODO
 * ~~Support for disabled options~~
 * Browser testing
 * Support for optgroups
-* Support for retrieving options by AJAX
+* ~~Support for retrieving options by AJAX~~
 * Tests
 
 Contributing
