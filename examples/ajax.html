@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>multi.js Ajax Example</title>
+
+        <!-- Include multi.js -->
+        <link rel="stylesheet" type="text/css" href="../dist/multi.css">
+        <script src="../dist/multi.js"></script>
+
+        <style>
+            /* Basic styling */
+            body {
+                font-family: sans-serif;
+            }
+
+            .container {
+                box-sizing: border-box;;
+                margin: 0 auto;
+                max-width: 500px;
+                padding: 0 20px;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>multi.js - AJAX options</h1>
+
+            <select multiple="multiple" name="users" id="user_select">
+                <option value="email@randomemail.gb">Anthony Smith</option>
+            </select>
+        </div>
+
+        <script>
+
+            var select = document.getElementById('user_select');
+
+            multi( select, { ajax: {
+                endpoint: 'https://jsonplaceholder.typicode.com/users',
+                transform: function ( users ) {
+                    return users.map( function ( user ) {
+
+                        // Randomly select and disable options
+                        var disabled = Math.random() >= 0.5;
+                        var selected = Math.random() >= 0.5;
+
+                        return {
+                            value: user.email,
+                            label: user.name,
+                            disabled: disabled,
+                            selected: selected && !disabled
+                        };
+
+                    } );
+                }
+            } } );
+
+        </script>
+    </body>
+</html>
